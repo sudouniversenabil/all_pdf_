@@ -1,0 +1,1530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BashScript.dev | The Complete Guide to Bash Scripting</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-main: #0f172a;
+            --bg-sidebar: #1e293b;
+            --bg-card: #1e293b;
+            --bg-code: #0b0f19;
+            --text-main: #e2e8f0;
+            --text-muted: #94a3b8;
+            --accent: #38bdf8;
+            --accent-hover: #7dd3fc;
+            --border: #334155;
+            --success: #34d399;
+            --warning: #fbbf24;
+            --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Layout Structure */
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Top Header / Progress Track */
+        header {
+            position: fixed;
+            top: 0;
+            right: 0;
+            left: 280px;
+            height: 64px;
+            background-color: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 2rem;
+            z-index: 100;
+            transition: left 0.3s ease;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            width: 40%;
+        }
+
+        .search-container {
+            position: relative;
+            width: 100%;
+        }
+
+        .search-input {
+            width: 100%;
+            background-color: var(--bg-code);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 0.5rem 1rem 0.5rem 2.5rem;
+            color: var(--text-main);
+            font-family: var(--font-sans);
+            font-size: 0.9rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .search-input:focus {
+            border-color: var(--accent);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            pointer-events: none;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .progress-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .progress-text {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            white-space: nowrap;
+        }
+
+        .progress-bar-bg {
+            width: 120px;
+            height: 6px;
+            background-color: var(--border);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            width: 0%;
+            height: 100%;
+            background-color: var(--success);
+            transition: width 0.3s ease;
+        }
+
+        /* Sidebar Navigation */
+        aside {
+            width: 280px;
+            background-color: var(--bg-sidebar);
+            border-right: 1px solid var(--border);
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            z-index: 200;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease;
+        }
+
+        .brand {
+            padding: 1.5rem;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-main);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .brand span {
+            color: var(--accent);
+        }
+
+        .nav-menu {
+            overflow-y: auto;
+            flex: 1;
+            padding: 1.5rem 1rem;
+        }
+
+        .nav-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .nav-section-title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+            padding-left: 0.5rem;
+            font-weight: 600;
+        }
+
+        .nav-list {
+            list-style: none;
+        }
+
+        .nav-item a {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.4rem 0.5rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            margin-bottom: 2px;
+        }
+
+        .nav-item a:hover {
+            background-color: rgba(56, 189, 248, 0.08);
+            color: var(--text-main);
+        }
+
+        .nav-item.active a {
+            background-color: rgba(56, 189, 248, 0.15);
+            color: var(--accent);
+            font-weight: 500;
+        }
+
+        .item-status {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background-color: transparent;
+        }
+
+        .nav-item.completed .item-status {
+            background-color: var(--success);
+        }
+
+        /* Main Content Container */
+        main {
+            flex: 1;
+            margin-left: 280px;
+            padding: 100px 2rem 4rem 2rem;
+            max-width: 1200px;
+            transition: margin-left 0.3s ease;
+        }
+
+        .content-section {
+            display: none;
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Typography elements */
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: #ffffff;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0.75rem;
+        }
+
+        h2 {
+            font-size: 1.75rem;
+            font-weight: 600;
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+            color: var(--text-main);
+        }
+
+        h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+            color: var(--accent);
+        }
+
+        p {
+            margin-bottom: 1.25rem;
+            color: var(--text-main);
+            font-size: 1rem;
+        }
+
+        ul, ol {
+            margin-bottom: 1.25rem;
+            padding-left: 1.5rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        /* Cards & Framework Blocks */
+        .card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Callout Styles */
+        .callout {
+            border-left: 4px solid transparent;
+            padding: 1rem 1.25rem;
+            border-radius: 0 6px 6px 0;
+            margin-bottom: 1.5rem;
+            background-color: rgba(255, 255, 255, 0.02);
+        }
+
+        .callout-note { border-left-color: var(--accent); background-color: rgba(56, 189, 248, 0.03); }
+        .callout-tip { border-left-color: var(--success); background-color: rgba(52, 211, 153, 0.03); }
+        .callout-warning { border-left-color: var(--warning); background-color: rgba(251, 191, 36, 0.03); }
+
+        .callout-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            font-size: 0.95rem;
+        }
+        .callout-note .callout-title { color: var(--accent); }
+        .callout-tip .callout-title { color: var(--success); }
+        .callout-warning .callout-title { color: var(--warning); }
+
+        /* Code Block Styling */
+        .code-container {
+            background-color: var(--bg-code);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            margin-bottom: 1.5rem;
+            position: relative;
+            font-family: var(--font-mono);
+        }
+
+        .code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            background-color: rgba(255, 255, 255, 0.03);
+            border-bottom: 1px solid var(--border);
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        pre {
+            padding: 1.25rem;
+            overflow-x: auto;
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+        code {
+            font-family: var(--font-mono);
+            color: #f8fafc;
+        }
+
+        .inline-code {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+            font-family: var(--font-mono);
+            font-size: 0.875em;
+            color: #f43f5e;
+        }
+
+        .btn-copy {
+            background-color: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-copy:hover {
+            color: var(--text-main);
+            border-color: var(--text-muted);
+        }
+
+        /* Command & Topic Layout Blocks */
+        .meta-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1.25rem;
+            font-size: 0.9rem;
+        }
+
+        .meta-table th, .meta-table td {
+            border: 1px solid var(--border);
+            padding: 0.6rem 0.8rem;
+            text-align: left;
+        }
+
+        .meta-table th {
+            background-color: rgba(255, 255, 255, 0.02);
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .output-header {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            letter-spacing: 0.05em;
+            margin-bottom: 0.25rem;
+            font-weight: 600;
+        }
+
+        .output-block {
+            background-color: #020617;
+            border-left: 3px solid #64748b;
+            padding: 0.75rem 1rem;
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            color: #94a3b8;
+            border-radius: 0 4px 4px 0;
+            margin-bottom: 1.25rem;
+            white-space: pre-wrap;
+        }
+
+        /* Action elements */
+        .completion-checkbox-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-top: 3rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .chk-complete {
+            width: 1.25rem;
+            height: 1.25rem;
+            cursor: pointer;
+            accent-color: var(--success);
+        }
+
+        .lbl-complete {
+            font-weight: 500;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        /* Utility classes */
+        .mt-4 { margin-top: 1rem; }
+        .mb-4 { margin-bottom: 1rem; }
+
+        /* Responsive Design */
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--text-main);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        @media (max-width: 992px) {
+            header {
+                left: 0;
+            }
+            aside {
+                transform: translateX(-100%);
+            }
+            aside.open {
+                transform: translateX(0);
+            }
+            main {
+                margin-left: 0;
+                padding-top: 88px;
+            }
+            .menu-toggle {
+                display: block;
+            }
+            .header-left {
+                width: 60%;
+            }
+            .progress-bar-bg {
+                width: 80px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <aside id="sidebar">
+            <div class="brand">
+                <span>$_</span> BashScript.dev
+            </div>
+            <nav class="nav-menu">
+                <div class="nav-section">
+                    <div class="nav-section-title">1. Introduction</div>
+                    <ul class="nav-list">
+                        <li class="nav-item active" data-target="intro"><a href="#intro">What is Bash? <div class="item-status"></div></a></li>
+                    </ul>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">2. Bash Setup</div>
+                    <ul class="nav-list">
+                        <li class="nav-item" data-target="setup"><a href="#setup">Environment Setup <div class="item-status"></div></a></li>
+                    </ul>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">3. Beginner Commands</div>
+                    <ul class="nav-list">
+                        <li class="nav-item" data-target="cmd-pwd"><a href="#cmd-pwd">pwd <div class="item-status"></div></a></li>
+                        <li class="nav-item" data-target="cmd-ls"><a href="#cmd-ls">ls <div class="item-status"></div></a></li>
+                        <li class="nav-item" data-target="cmd-cd"><a href="#cmd-cd">cd <div class="item-status"></div></a></li>
+                        <li class="nav-item" data-target="cmd-mkdir"><a href="#cmd-mkdir">mkdir <div class="item-status"></div></a></li>
+                        <li class="nav-item" data-target="cmd-rmdir"><a href="#cmd-rmdir">rmdir <div class="item-status"></div></a></li>
+                        <li class="nav-item" data-target="cmd-touch"><a href="#cmd-touch">touch <div class="item-status"></div></a></li>
+                        <li class="nav-item" data-target="cmd-cp"><a href="#cmd-cp">cp <div class="item-status"></div></a></li>
+                        <li class="nav-item" data-target="cmd-mv"><a href="#cmd-mv">mv <div class="item-status"></div></a></li>
+                        <li class="nav-item" data-target="cmd-rm"><a href="#cmd-rm">rm <div class="item-status"></div></a></li>
+                        <li class="nav-item" data-target="cmd-cat"><a href="#cmd-cat">cat <div class="item-status"></div></a></li>
+                        <li class="nav-item" data-target="cmd-less"><a href="#cmd-less">less <div class="item-status"></div></a></li>
+                        <li class="nav-item" data-target="cmd-head"><a href="#cmd-head">head <div class="item-status"></div></a></li>
+                        <li class="nav-item" data-target="cmd-tail"><a href="#cmd-tail">tail <div class="item-status"></div></a></li>
+                        <li class="nav-item" data-target="cmd-echo"><a href="#cmd-echo">echo <div class="item-status"></div></a></li>
+                        <li class="nav-item" data-target="cmd-clear"><a href="#cmd-clear">clear <div class="item-status"></div></a></li>
+                        <li class="nav-item" data-target="cmd-history"><a href="#cmd-history">history <div class="item-status"></div></a></li>
+                        <li class="nav-item" data-target="cmd-man"><a href="#cmd-man">man <div class="item-status"></div></a></li>
+                        <li class="nav-item" data-target="cmd-grep"><a href="#cmd-grep">grep <div class="item-status"></div></a></li>
+                        <li class="nav-item" data-target="cmd-find"><a href="#cmd-find">find <div class="item-status"></div></a></li>
+                    </ul>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">4. Intermediate Topics</div>
+                    <ul class="nav-list">
+                        <li class="nav-item" data-target="top-variables"><a href="#top-variables">Variables <div class="item-status"></div></a></li>
+                        <li class="nav-item" data-target="top-input"><a href="#top-input">User Input <div class="item-status"></div></a></li>
+                        <li class="nav-item" data-target="top-arithmetic"><a href="#top-arithmetic">Arithmetic <div class="item-status"></div></a></li>
+                        <li class="nav-item" data-target="top-conditions"><a href="#top-conditions">Conditions <div class="item-status"></div></a></li>
+                        <li class="nav-item" data-target="top-loops"><a href="#top-loops">Loops <div class="item-status"></div></a></li>
+                        <li class="nav-item" data-target="top-functions"><a href="#top-functions">Functions <div class="item-status"></div></a></li>
+                        <li class="nav-item" data-target="top-arrays"><a href="#top-arrays">Arrays <div class="item-status"></div></a></li>
+                        <li class="nav-item" data-target="top-fileops"><a href="#top-fileops">File Operations <div class="item-status"></div></a></li>
+                        <li class="nav-item" data-target="top-strings"><a href="#top-strings">String Manipulation <div class="item-status"></div></a></li>
+                        <li class="nav-item" data-target="top-arguments"><a href="#top-arguments">Command Arguments <div class="item-status"></div></a></li>
+                        <li class="nav-item" data-target="top-case"><a href="#top-case">Case Statements <div class="item-status"></div></a></li>
+                        <li class="nav-item" data-target="top-exitcodes"><a href="#top-exitcodes">Exit Codes <div class="item-status"></div></a></li>
+                        <li class="nav-item" data-target="top-pipes"><a href="#top-pipes">Pipes & Redirection <div class="item-status"></div></a></li>
+                        <li class="nav-item" data-target="top-env"><a href="#top-env">Environment Variables <div class="item-status"></div></a></li>
+                    </ul>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">5. Capstone Projects</div>
+                    <ul class="nav-list">
+                        <li class="nav-item" data-target="proj-organizer"><a href="#proj-organizer">File Organizer <div class="item-status"></div></a></li>
+                        <li class="nav-item" data-target="proj-backup"><a href="#proj-backup">Backup Script <div class="item-status"></div></a></li>
+                        <li class="nav-item" data-target="proj-sysinfo"><a href="#proj-sysinfo">Sys Info Extractor <div class="item-status"></div></a></li>
+                        <li class="nav-item" data-target="proj-log"><a href="#proj-log">Log Analyzer <div class="item-status"></div></a></li>
+                        <li class="nav-item" data-target="proj-renamer"><a href="#proj-renamer">Batch File Renamer <div class="item-status"></div></a></li>
+                    </ul>
+                </div>
+            </nav>
+        </aside>
+
+        <header>
+            <div class="header-left">
+                <button class="menu-toggle" id="menuToggle">☰</button>
+                <div class="search-container">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" class="search-input" id="searchBar" placeholder="Search documentation or commands...">
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="progress-wrapper">
+                    <span class="progress-text">Course Progress:</span>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" id="progressBar"></div>
+                    </div>
+                    <span class="progress-text" id="progressPercent">0%</span>
+                </div>
+            </div>
+        </header>
+
+        <main>
+            <section id="intro" class="content-section active">
+                <h1>Introduction to Bash Scripting</h1>
+                <p>Welcome to your comprehensive guide to learning Bash scripting. Whether you want to automate redundant manual jobs, manage cloud infrastructure, or simply understand how your UNIX terminal operates under the hood, Bash scripting is one of the most versatile utility options available for technical specialists.</p>
+                
+                <div class="grid-2">
+                    <div class="card">
+                        <h3>What is Bash?</h3>
+                        <p><strong>Bash</strong> (short for <em>Bourne Again SHell</em>) is an sh-compatible command-language interpreter executing commands read from standard input streams or specialized executable shell configuration files.</p>
+                    </div>
+                    <div class="card">
+                        <h3>Why Bash is Useful</h3>
+                        <p>It allows automation of repetitive OS-level flows, chain operations of complex pre-compiled binaries via pipeline architecture, and native speed advantages when avoiding third-party dynamic language engine initializations.</p>
+                    </div>
+                </div>
+
+                <h3>Where is Bash Used?</h3>
+                <ul>
+                    <li><strong>DevOps & CI/CD Pipelines:</strong> Executing configurations inside GitHub Actions, GitLab CI, Jenkins, or Docker layers.</li>
+                    <li><strong>System Administration:</strong> Managing log rotation, user setup permissions, and daily backups across system distributions.</li>
+                    <li><strong>Cloud Infrastructure:</strong> Init provisioning steps on cloud compute virtual machines (AWS EC2, Compute Engine instances).</li>
+                </ul>
+
+                <div class="callout callout-note">
+                    <div class="callout-title">System Architecture Note</div>
+                    Bash works natively across Unix-based environments including GNU/Linux distributions and macOS platforms.
+                </div>
+            </section>
+
+            <section id="setup" class="content-section">
+                <h1>Environment & Basic Terminal Setup</h1>
+                <p>Before launching custom shell script architectures, you need immediate access to an interactive terminal interface.</p>
+                
+                <h2>Platform Framework Configurations</h2>
+                <h3>Linux / Ubuntu Environments</h3>
+                <p>Most modern Linux environments ship natively configured with Bash set as the primary login and interactive shell runtime. Open your configuration using default shortcuts:</p>
+                <div class="code-container">
+                    <div class="code-header"><span>Keyboard Shortcut</span></div>
+                    <pre><code>Ctrl + Alt + T</code></pre>
+                </div>
+
+                <h3>Verifying Current Runtime Environment</h3>
+                <p>To verify the default location matching the local bin file structural configurations, query the shell metadata target:</p>
+                <div class="code-container">
+                    <div class="code-header"><span>Terminal</span><button class="btn-copy">Copy</button></div>
+                    <pre><code>echo $SHELL</code></pre>
+                </div>
+                <div class="output-header">Expected Output:</div>
+                <div class="output-block">/bin/bash</div>
+
+                <div class="callout callout-tip">
+                    <div class="callout-title">The Shebang Flag</div>
+                    Every self-contained file execution script we build should initiate with standard programmatic paths known as the Shebang directive: <span class="inline-code">#!/bin/bash</span>. This explicitly instructs the system kernel pathing infrastructure to load the exact runtime target.
+                </div>
+            </section>
+
+            <section id="cmd-pwd" class="content-section">
+                <h1>Command Reference: pwd</h1>
+                <p>The <code>pwd</code> utility prints the absolute path of your current working directory to the standard output stream.</p>
+                <table class="meta-table">
+                    <tr><th>Syntax</th><td><code>pwd [options]</code></td></tr>
+                    <tr><th>Real-World Usage</th><td>Tracking current position in build processes before initiating relative file deletions.</td></tr>
+                </table>
+                <h3>Examples & Outputs</h3>
+                <div class="code-container">
+                    <div class="code-header"><span>Example 1: Basic execution</span><button class="btn-copy">Copy</button></div>
+                    <pre><code>pwd</code></pre>
+                </div>
+                <div class="output-header">Expected Output:</div>
+                <div class="output-block">/home/developer/workspace</div>
+            </section>
+
+            <section id="cmd-ls" class="content-section">
+                <h1>Command Reference: ls</h1>
+                <p>List directory contents. Shows files, directories, and relevant metadata depending on active flags.</p>
+                <table class="meta-table">
+                    <tr><th>Syntax</th><td><code>ls [options] [path]</code></td></tr>
+                    <tr><th>Real-World Usage</th><td>Checking if deployment packages exist inside target targets before calling update scripts.</td></tr>
+                </table>
+                <h3>Examples & Outputs</h3>
+                <div class="code-container">
+                    <div class="code-header"><span>Example 1: Detailed list showing hidden items</span><button class="btn-copy">Copy</button></div>
+                    <pre><code>ls -la</code></pre>
+                </div>
+                <div class="output-header">Expected Output:</div>
+                <div class="output-block">drwxr-xr-x  2 developer dev  4096 Jun 19 14:22 .
+drwxr-xr-x 20 developer dev  4096 Jun 19 14:20 ..
+-rw-r--r--  1 developer dev   220 Jun 19 14:21 .bashrc
+-rw-r--r--  1 developer dev     0 Jun 19 14:22 app.sh</div>
+            </section>
+
+            <section id="cmd-cd" class="content-section">
+                <h1>Command Reference: cd</h1>
+                <p>Changes the current shell working directory to a target destination path.</p>
+                <table class="meta-table">
+                    <tr><th>Syntax</th><td><code>cd [directory]</code></td></tr>
+                    <tr><th>Real-World Usage</th><td>Navigating between different target code repositories or accessing system configuration files.</td></tr>
+                </table>
+                <h3>Examples & Outputs</h3>
+                <div class="code-container">
+                    <div class="code-header"><span>Example 1: Change to absolute system path</span><button class="btn-copy">Copy</button></div>
+                    <pre><code>cd /var/log</code></pre>
+                </div>
+                <div class="code-container">
+                    <div class="code-header"><span>Example 2: Move back up one level</span><button class="btn-copy">Copy</button></div>
+                    <pre><code>cd ..</code></pre>
+                </div>
+            </section>
+
+            <section id="cmd-mkdir" class="content-section">
+                <h1>Command Reference: mkdir</h1>
+                <p>Creates new folders/directories if they do not already exist.</p>
+                <table class="meta-table">
+                    <tr><th>Syntax</th><td><code>mkdir [options] directory_name</code></td></tr>
+                    <tr><th>Real-World Usage</th><td>Dynamically initializing timestamped backup folders during log archival loops.</td></tr>
+                </table>
+                <h3>Examples & Outputs</h3>
+                <div class="code-container">
+                    <div class="code-header"><span>Example 1: Creating nested structures implicitly</span><button class="btn-copy">Copy</button></div>
+                    <pre><code>mkdir -p project/src/components</code></pre>
+                </div>
+            </section>
+
+            <section id="cmd-rmdir" class="content-section">
+                <h1>Command Reference: rmdir</h1>
+                <p>Removes completely empty directories from the filesystem hierarchy safely.</p>
+                <table class="meta-table">
+                    <tr><th>Syntax</th><td><code>rmdir directory_name</code></td></tr>
+                    <tr><th>Real-World Usage</th><td>Cleaning up empty intermediate scratch directory artifacts left behind by compilation routines.</td></tr>
+                </table>
+                <h3>Examples & Outputs</h3>
+                <div class="code-container">
+                    <div class="code-header"><span>Example 1: Removing an empty folder</span><button class="btn-copy">Copy</button></div>
+                    <pre><code>rmdir template_empty</code></pre>
+                </div>
+            </section>
+
+            <section id="cmd-touch" class="content-section">
+                <h1>Command Reference: touch</h1>
+                <p>Updates access and modification times of files, or creates empty files if they don't exist.</p>
+                <table class="meta-table">
+                    <tr><th>Syntax</th><td><code>touch filename</code></td></tr>
+                    <tr><th>Real-World Usage</th><td>Generating lock files to signify a specific system processing operation is active.</td></tr>
+                </table>
+                <h3>Examples & Outputs</h3>
+                <div class="code-container">
+                    <div class="code-header"><span>Example 1: Initializing configuration placeholders</span><button class="btn-copy">Copy</button></div>
+                    <pre><code>touch .env.production</code></pre>
+                </div>
+            </section>
+
+            <section id="cmd-cp" class="content-section">
+                <h1>Command Reference: cp</h1>
+                <p>Copies files or entire folder hierarchies from a designated source to a specified target destination path.</p>
+                <table class="meta-table">
+                    <tr><th>Syntax</th><td><code>cp [options] source destination</code></td></tr>
+                    <tr><th>Real-World Usage</th><td>Creating duplicate copies of configurations before executing destructive runtime file alterations.</td></tr>
+                </table>
+                <h3>Examples & Outputs</h3>
+                <div class="code-container">
+                    <div class="code-header"><span>Example 1: Recursive directory cloning</span><button class="btn-copy">Copy</button></div>
+                    <pre><code>cp -r /etc/nginx/config /backups/nginx/</code></pre>
+                </div>
+            </section>
+
+            <section id="cmd-mv" class="content-section">
+                <h1>Command Reference: mv</h1>
+                <p>Moves or renames files and folders across target directory paths.</p>
+                <table class="meta-table">
+                    <tr><th>Syntax</th><td><code>mv source destination</code></td></tr>
+                    <tr><th>Real-World Usage</th><td>Shifting generated analytical archive files directly into distribution assets folder targets.</td></tr>
+                </table>
+                <h3>Examples & Outputs</h3>
+                <div class="code-container">
+                    <div class="code-header"><span>Example 1: Renaming local config scripts</span><button class="btn-copy">Copy</button></div>
+                    <pre><code>mv setup.tmp setup.sh</code></pre>
+                </div>
+            </section>
+
+            <section id="cmd-rm" class="content-section">
+                <h1>Command Reference: rm</h1>
+                <p>Removes files or whole recursive directory contents irreversibly from your storage architecture.</p>
+                <table class="meta-table">
+                    <tr><th>Syntax</th><td><code>rm [options] targets</code></td></tr>
+                    <tr><th>Real-World Usage</th><td>Purging intermediate dependency artifacts post-completion of automated test configurations.</td></tr>
+                </table>
+                <h3>Examples & Outputs</h3>
+                <div class="code-container">
+                    <div class="code-header"><span>Example 1: Force recursive removal of temp folders</span><button class="btn-copy">Copy</button></div>
+                    <pre><code>rm -rf ./build_cache</code></pre>
+                </div>
+                <div class="callout callout-warning">
+                    <div class="callout-title">Destructive Execution Risk</div>
+                    Executing <span class="inline-code">rm -rf</span> without verifying destination variables can permanently delete critical operating system items.
+                </div>
+            </section>
+
+            <section id="cmd-cat" class="content-section">
+                <h1>Command Reference: cat</h1>
+                <p>Concatenates and prints full text contents of specified file targets straight onto standard layout outputs.</p>
+                <table class="meta-table">
+                    <tr><th>Syntax</th><td><code>cat [file]</code></td></tr>
+                    <tr><th>Real-World Usage</th><td>Inspecting configuration parameters or small application logs inside remote terminal instances.</td></tr>
+                </table>
+                <h3>Examples & Outputs</h3>
+                <div class="code-container">
+                    <div class="code-header"><span>Example 1: Reading configuration values</span><button class="btn-copy">Copy</button></div>
+                    <pre><code>cat /etc/hostname</code></pre>
+                </div>
+                <div class="output-header">Expected Output:</div>
+                <div class="output-block">production-db-node-01</div>
+            </section>
+
+            <section id="cmd-less" class="content-section">
+                <h1>Command Reference: less</h1>
+                <p>Provides an interactive, paginated, and scrollable terminal viewport for viewing massive log structures without loading the entire asset directly into volatile memory space.</p>
+                <table class="meta-table">
+                    <tr><th>Syntax</th><td><code>less file_target</code></td></tr>
+                    <tr><th>Real-World Usage</th><td>Investigating active kernel system traces or highly verbose platform process tracking logs.</td></tr>
+                </table>
+                <h3>Examples & Outputs</h3>
+                <div class="code-container">
+                    <div class="code-header"><span>Example 1: Paginated navigation</span><button class="btn-copy">Copy</button></div>
+                    <pre><code>less /var/log/syslog</code></pre>
+                </div>
+            </section>
+
+            <section id="cmd-head" class="content-section">
+                <h1>Command Reference: head</h1>
+                <p>Prints the first lines (defaulting to the top 10 rows) of a target text stream.</p>
+                <table class="meta-table">
+                    <tr><th>Syntax</th><td><code>head -n [number] file</code></td></tr>
+                    <tr><th>Real-World Usage</th><td>Inspecting standard metadata schemas or schema properties localized at the peak of configuration files.</td></tr>
+                </table>
+                <h3>Examples & Outputs</h3>
+                <div class="code-container">
+                    <div class="code-header"><span>Example 1: Reading top 3 rows of data listings</span><button class="btn-copy">Copy</button></div>
+                    <pre><code>head -n 3 data.csv</code></pre>
+                </div>
+                <div class="output-header">Expected Output:</div>
+                <div class="output-block">id,user_name,email_address
+1,alpha,alpha@domain.com
+2,beta,beta@domain.com</div>
+            </section>
+
+            <section id="cmd-tail" class="content-section">
+                <h1>Command Reference: tail</h1>
+                <p>Outputs the final lines of target streaming output files. Crucial for active service monitoring.</p>
+                <table class="meta-table">
+                    <tr><th>Syntax</th><td><code>tail -n [number] file</code></td></tr>
+                    <tr><th>Real-World Usage</th><td>Watching live HTTP requests hit an active application gateway instance frame by frame.</td></tr>
+                </table>
+                <h3>Examples & Outputs</h3>
+                <div class="code-container">
+                    <div class="code-header"><span>Example 1: Streaming live updates continuously</span><button class="btn-copy">Copy</button></div>
+                    <pre><code>tail -f /var/log/nginx/access.log</code></pre>
+                </div>
+            </section>
+
+            <section id="cmd-echo" class="content-section">
+                <h1>Command Reference: echo</h1>
+                <p>Prints standard lines of text parameters directly into terminal display fields or redirect targets.</p>
+                <table class="meta-table">
+                    <tr><th>Syntax</th><td><code>echo "string data"</code></td></tr>
+                    <tr><th>Real-World Usage</th><td>Printing operation completion messages or variable statuses during execution loops.</td></tr>
+                </table>
+                <h3>Examples & Outputs</h3>
+                <div class="code-container">
+                    <div class="code-header"><span>Example 1: Basic text emission</span><button class="btn-copy">Copy</button></div>
+                    <pre><code>echo "Initialization complete."</code></pre>
+                </div>
+                <div class="output-header">Expected Output:</div>
+                <div class="output-block">Initialization complete.</div>
+            </section>
+
+            <section id="cmd-clear" class="content-section">
+                <h1>Command Reference: clear</h1>
+                <p>Clears active scrolling context history inside screen terminal interface buffers for visibility improvement.</p>
+                <table class="meta-table">
+                    <tr><th>Syntax</th><td><code>clear</code></td></tr>
+                    <tr><th>Real-World Usage</th><td>Cleaning the command line interface space before running comprehensive diagnostics scripts.</td></tr>
+                </table>
+            </section>
+
+            <section id="cmd-history" class="content-section">
+                <h1>Command Reference: history</h1>
+                <p>Returns the indexed log tracking list details matching historical execution items typed into this shell instance line.</p>
+                <table class="meta-table">
+                    <tr><th>Syntax</th><td><code>history</code></td></tr>
+                    <tr><th>Real-World Usage</th><td>Retrieving a complex, multi-flag command that you executed earlier but forgot the exact syntax for.</td></tr>
+                </table>
+                <h3>Examples & Outputs</h3>
+                <div class="code-container">
+                    <div class="code-header"><span>Example 1: Query execution index history logs</span><button class="btn-copy">Copy</button></div>
+                    <pre><code>history | tail -n 2</code></pre>
+                </div>
+                <div class="output-header">Expected Output:</div>
+                <div class="output-block"> 2045  ssh root@192.168.1.50
+ 2046  history | tail -n 2</div>
+            </section>
+
+            <section id="cmd-man" class="content-section">
+                <h1>Command Reference: man</h1>
+                <p>Displays the built-in reference documentation and user manuals for command line utilities.</p>
+                <table class="meta-table">
+                    <tr><th>Syntax</th><td><code>man command_name</code></td></tr>
+                    <tr><th>Real-World Usage</th><td>Checking the specific flag combinations and definitions for utilities like tar, rsync, or curl.</td></tr>
+                </table>
+            </section>
+
+            <section id="cmd-grep" class="content-section">
+                <h1>Command Reference: grep</h1>
+                <p>Filters lines of input text that match a specified regular expression pattern or substring.</p>
+                <table class="meta-table">
+                    <tr><th>Syntax</th><td><code>grep [options] "pattern" file</code></td></tr>
+                    <tr><th>Real-World Usage</th><td>Isolating explicit 500 error code occurrences out of huge server log assets.</td></tr>
+                </table>
+                <h3>Examples & Outputs</h3>
+                <div class="code-container">
+                    <div class="code-header"><span>Example 1: Find matching rows ignoring casing rules</span><button class="btn-copy">Copy</button></div>
+                    <pre><code>grep -i "critical" /var/log/application.log</code></pre>
+                </div>
+                <div class="output-header">Expected Output:</div>
+                <div class="output-block">[2026-06-19 12:01:44] CRITICAL: Database connection pool exhausted.</div>
+            </section>
+
+            <section id="cmd-find" class="content-section">
+                <h1>Command Reference: find</h1>
+                <p>Searches real-time filesystem directory trees for items based on explicit matching properties (names, size, extensions).</p>
+                <table class="meta-table">
+                    <tr><th>Syntax</th><td><code>find [path] [expression]</code></td></tr>
+                    <tr><th>Real-World Usage</th><td>Locating and grouping all disconnected configuration files scattered throughout deep nested directories.</td></tr>
+                </table>
+                <h3>Examples & Outputs</h3>
+                <div class="code-container">
+                    <div class="code-header"><span>Example 1: Find files matching specific extension target configurations</span><button class="btn-copy">Copy</button></div>
+                    <pre><code>find . -name "*.conf"</code></pre>
+                </div>
+                <div class="output-header">Expected Output:</div>
+                <div class="output-block">./configs/nginx.conf
+./configs/db/redis.conf</div>
+            </section>
+
+
+            <section id="top-variables" class="content-section">
+                <h1>Variables in Bash</h1>
+                <h2>Theory</h2>
+                <p>Variables serve as named storage spaces holding temporary text parameters or numbers. In Bash, you do not declare explicit variable types. Crucially, <strong>no spaces are permitted around the assignment assignment operator (<span class="inline-code">=</span>)</strong> during reference assignments.</p>
+                
+                <h3>Code Example</h3>
+                <div class="code-container">
+                    <div class="code-header"><span>variables.sh</span><button class="btn-copy">Copy</button></div>
+                    <pre><code>#!/bin/bash
+# Correct declaration
+APP_NAME="InventoryManager"
+VERSION=2.4
+
+# Accessing variable definitions via dollar prefix sign rules
+echo "Running $APP_NAME on version $VERSION"</code></pre>
+                </div>
+                
+                <h2>Practical Use Case</h2>
+                <p>Defining centralized baseline global path addresses, access token strings, or software release tracking targets across uniform systems architecture steps.</p>
+            </section>
+
+            <section id="top-input" class="content-section">
+                <h1>Accepting User Input</h1>
+                <h2>Theory</h2>
+                <p>The <code>read</code> keyword prompts interactive terminal sessions to wait for input from standard keyboard streams, storing the resulting characters directly into specific variable allocations.</p>
+                
+                <h3>Code Example</h3>
+                <div class="code-container">
+                    <div class="code-header"><span>input.sh</span><button class="btn-copy">Copy</button></div>
+                    <pre><code>#!/bin/bash
+read -p "Enter target deployment node environment: " node_env
+echo "Initiating teardown sequences targeting cluster: $node_env"</code></pre>
+                </div>
+                
+                <h2>Practical Use Case</h2>
+                <p>Building interactive configuration scripts that ask infrastructure operators for confirmations before executing major infrastructure transformations.</p>
+            </section>
+
+            <section id="top-arithmetic" class="content-section">
+                <h1>Arithmetic Operations</h1>
+                <h2>Theory</h2>
+                <p>Bash treats variable values as text strings by default. To compute mathematical equations, encapsulate operations using the double parenthesis shell syntax evaluate construct: <code>$(( expression ))</code>.</p>
+                
+                <h3>Code Example</h3>
+                <div class="code-container">
+                    <div class="code-header"><span>math.sh</span><button class="btn-copy">Copy</button></div>
+                    <pre><code>#!/bin/bash
+ITEM_A=45
+ITEM_B=55
+
+TOTAL=$((ITEM_A + ITEM_B))
+echo "Aggregate Sum Calculation results: $TOTAL"</code></pre>
+                </div>
+                
+                <h2>Practical Use Case</h2>
+                <p>Calculating file item loops, structural array indexes, page counts, or building memory capacity usage margins inside validation tools.</p>
+            </section>
+
+            <section id="top-conditions" class="content-section">
+                <h1>Conditions (if, elif, else)</h1>
+                <h2>Theory</h2>
+                <p>Conditional structures evaluate runtime logic parameters using test blocks. Bash relies on distinct evaluation flags within bracket evaluations rather than common logical math symbols (e.g., use <code>-eq</code> instead of <code>==</code> for integers).</p>
+                
+                <table class="meta-table">
+                    <tr><th>Flag</th><th>Meaning</th></tr>
+                    <tr><td><code>-eq</code> / <code>-ne</code></td><td>Equal / Not Equal (Integers)</td></tr>
+                    <tr><td><code>-gt</code> / <code>-lt</code></td><td>Greater Than / Less Than (Integers)</td></tr>
+                    <tr><td><code>-z</code></td><td>String variable length evaluated empty</td></tr>
+                    <tr><td><code>-f</code></td><td>Target target path verified as a standard file entity</td></tr>
+                </table>
+
+                <h3>Code Example</h3>
+                <div class="code-container">
+                    <div class="code-header"><span>conditionals.sh</span><button class="btn-copy">Copy</button></div>
+                    <pre><code>#!/bin/bash
+THRESHOLD=90
+CURRENT_USAGE=94
+
+if [ "$CURRENT_USAGE" -gt "$THRESHOLD" ]; then
+    echo "ALERT: Storage threshold breached!"
+elif [ "$CURRENT_USAGE" -eq "$THRESHOLD" ]; then
+    echo "WARNING: System reaches baseline optimization thresholds."
+else
+    echo "Metrics running safe."
+fi</code></pre>
+                </div>
+            </section>
+
+            <section id="top-loops" class="content-section">
+                <h1>Loops (for, while)</h1>
+                <h2>Theory</h2>
+                <p>Loops iteratively process sequences of text inputs, files, or incremental ranges until reaching terminal conditions.</p>
+                
+                <h3>Code Example: For & While Loops</h3>
+                <div class="code-container">
+                    <div class="code-header"><span>loops.sh</span><button class="btn-copy">Copy</button></div>
+                    <pre><code>#!/bin/bash
+# For loop iterating across exact sequence sets
+for server in web01 web02 web03; do
+    echo "Pinging cluster endpoint node: $server"
+done
+
+# While conditional validation countdown framework loops
+COUNT=3
+while [ $COUNT -gt 0 ]; do
+    echo "Retrying process initialization... $COUNT"
+    COUNT=$((COUNT - 1))
+done</code></pre>
+                </div>
+            </section>
+
+            <section id="top-functions" class="content-section">
+                <h1>Functions</h1>
+                <h2>Theory</h2>
+                <p>Functions let you encapsulate re-usable blocks of logic to keep your code DRY (Don't Repeat Yourself). Unlike other languages, arguments are accessed using positional parameters (<code>$1</code>, <code>$2</code>) rather than named signature values.</p>
+                
+                <h3>Code Example</h3>
+                <div class="code-container">
+                    <div class="code-header"><span>functions.sh</span><button class="btn-copy">Copy</button></div>
+                    <pre><code>#!/bin/bash
+log_event() {
+    local level=$1
+    local msg=$2
+    echo "[$(date +'%Y-%m-%d %H:%M:%S')] [$level] - $msg"
+}
+
+log_event "INFO" "Deploying code updates to cluster storage assets."</code></pre>
+                </div>
+            </section>
+
+            <section id="top-arrays" class="content-section">
+                <h1>Arrays</h1>
+                <h2>Theory</h2>
+                <p>Bash supports one-dimensional indexed arrays. You can populate arrays directly using parentheses and access elements using zero-based indices inside curly braces.</p>
+                
+                <h3>Code Example</h3>
+                <div class="code-container">
+                    <div class="code-header"><span>arrays.sh</span><button class="btn-copy">Copy</button></div>
+                    <pre><code>#!/bin/bash
+environments=("dev" "staging" "production")
+
+# Appending new values
+environments+=("dr_site")
+
+# Iterating across all items contained in array structures
+for env in "${environments[@]}"; do
+    echo "Target cluster matrix node: $env"
+done</code></pre>
+                </div>
+            </section>
+
+            <section id="top-fileops" class="content-section">
+                <h1>File Operations & Validations</h1>
+                <h2>Theory</h2>
+                <p>Bash can evaluate the state of specific file paths using operators within bracket test loops. This lets you check file types and read/write permissions before executing operations on them.</p>
+                
+                <h3>Code Example</h3>
+                <div class="code-container">
+                    <div class="code-header"><span>file_check.sh</span><button class="btn-copy">Copy</button></div>
+                    <pre><code>#!/bin/bash
+CONFIG_PATH="/etc/app/settings.conf"
+
+if [ -f "$CONFIG_PATH" ] && [ -r "$CONFIG_PATH" ]; then
+    echo "Configuration exists and is readable. Loading context parameters..."
+else
+    echo "Critical initialization failure: Configuration missing or restricted." >&2
+fi</code></pre>
+                </div>
+            </section>
+
+            <section id="top-strings" class="content-section">
+                <h1>String Manipulation</h1>
+                <h2>Theory</h2>
+                <p>Bash features powerful parameter expansion mechanisms that let you modify, slice, and substitute text values natively without spawning external subprocess tools like <code>sed</code> or <code>awk</code>.</p>
+                
+                <h3>Code Example</h3>
+                <div class="code-container">
+                    <div class="code-header"><span>strings.sh</span><button class="btn-copy">Copy</button></div>
+                    <pre><code>#!/bin/bash
+FILENAME="backup_archive_2026.tar.gz"
+
+# Slicing substring values out from target structures
+echo "Extracted prefix length parameter: ${FILENAME:0:14}"
+
+# Substring replacement match processing string values
+echo "Modified name format target: ${FILENAME/2026/backup_fixed}"</code></pre>
+                </div>
+            </section>
+
+            <section id="top-arguments" class="content-section">
+                <h1>Command Line Arguments</h1>
+                <h2>Theory</h2>
+                <p>You can pass positional parameter parameters directly into execution instances. Bash maps these parameters sequentially to numeric indices beginning at index position one.</p>
+                
+                <table class="meta-table">
+                    <tr><th>Parameter</th><th>Value Contents</th></tr>
+                    <tr><td><code>$0</code></td><td>The exact file execution name of your script.</td></tr>
+                    <tr><td><code>$1, $2...</code></td><td>The first and second positional arguments passed.</td></tr>
+                    <tr><td><code>$#</code></td><td>The total count of arguments provided to the execution call.</td></tr>
+                    <tr><td><code>$@</code></td><td>An array array structure representing all input items.</td></tr>
+                </table>
+
+                <h3>Code Example</h3>
+                <div class="code-container">
+                    <div class="code-header"><span>args.sh</span><button class="btn-copy">Copy</button></div>
+                    <pre><code>#!/bin/bash
+echo "Executing utility script: $0"
+echo "Processing target cluster configuration parameter node: $1"
+echo "Total arguments received from call stack frame: $#"</code></pre>
+                </div>
+            </section>
+
+            <section id="top-case" class="content-section">
+                <h1>Case Statements</h1>
+                <h2>Theory</h2>
+                <p>Case structures serve as clean pattern matching blocks that streamline logic when matching a single variable against multiple potential string criteria. They function similarly to switch statements in other languages.</p>
+                
+                <h3>Code Example</h3>
+                <div class="code-container">
+                    <div class="code-header"><span>case_match.sh</span><button class="btn-copy">Copy</button></div>
+                    <pre><code>#!/bin/bash
+action=$1
+
+case "$action" in
+    "start")
+        echo "Starting background workers..."
+        ;;
+    "stop")
+        echo "Stopping background processes cleanly..."
+        ;;
+    *)
+        echo "Invalid routine choice. Use start or stop."
+        exit 1
+        ;;
+esac</code></pre>
+                </div>
+            </section>
+
+            <section id="top-exitcodes" class="content-section">
+                <h1>Exit Codes</h1>
+                <h2>Theory</h2>
+                <p>Every terminal command returns an exit status code between <code>0</code> and <code>255</code> upon completion. An exit code of <code>0</code> signifies successful execution, while any non-zero value indicates an error.</p>
+                <p>The status code of the most recently executed command is stored in the special variable <code>$?</code>.</p>
+                
+                <h3>Code Example</h3>
+                <div class="code-container">
+                    <div class="code-header"><span>exit_status.sh</span><button class="btn-copy">Copy</button></div>
+                    <pre><code>#!/bin/bash
+mkdir /root/secret_directory 2>/dev/null
+status_check=$?
+
+if [ $status_check -ne 0 ]; then
+    echo "Privileged execution failure tracked: Exit code $status_check"
+fi</code></pre>
+                </div>
+            </section>
+
+            <section id="top-pipes" class="content-section">
+                <h1>Pipes & Redirection</h1>
+                <h2>Theory</h2>
+                <p>Redirection lets you send command outputs directly to files rather than the terminal screen, while pipes let you route the output of one command as the input for another.</p>
+                
+                <table class="meta-table">
+                    <tr><th>Symbol</th><th>Operational Intent Mapping</th></tr>
+                    <tr><td><code>&gt;</code></td><td>Overwrite standard outputs text into a target destination file.</td></tr>
+                    <tr><td><code>&gt;&gt;</code></td><td>Append output streams to the bottom of an existing file.</td></tr>
+                    <tr><td><code>2&gt;&gt;</code></td><td>Redirect error outputs specifically into a diagnostic file.</td></tr>
+                    <tr><td><code>|</code></td><td>Pipe the output stream of one command directly into the input of another.</td></tr>
+                </table>
+
+                <h3>Code Example</h3>
+                <div class="code-container">
+                    <div class="code-header"><span>pipe_stream.sh</span><button class="btn-copy">Copy</button></div>
+                    <pre><code>#!/bin/bash
+# Writing execution summary lists straight to persistent text formats
+echo "System Init" > boot.log
+
+# Extracting matching terms from live file listings using pipes
+cat /var/log/nginx/access.log | grep "404" | wc -l</code></pre>
+                </div>
+            </section>
+
+            <section id="top-env" class="content-section">
+                <h1>Environment Variables</h1>
+                <h2>Theory</h2>
+                <p>Environment variables are system-wide variables inherited by child processes. They control shell behaviors and application configurations across your system session.</p>
+                
+                <h3>Code Example</h3>
+                <div class="code-container">
+                    <div class="code-header"><span>env_check.sh</span><button class="btn-copy">Copy</button></div>
+                    <pre><code>#!/bin/bash
+# Export makes the variable accessible to downstream scripts and binaries
+export DEPLOYMENT_TOKEN="secret_abc123xyz"
+
+echo "Current active path string values: $PATH"
+echo "Current active login profile target user: $USER"</code></pre>
+                </div>
+            </section>
+
+
+            <section id="proj-organizer" class="content-section">
+                <h1>Capstone Project 1: Automated File Organizer</h1>
+                <p>This production-ready production utility scans directory targets, matches extensions, and organizes files into dedicated subdirectories.</p>
+                
+                <div class="code-container">
+                    <div class="code-header"><span>file_organizer.sh</span><button class="btn-copy">Copy</button></div>
+                    <pre><code>#!/bin/bash
+# Purpose: Clean up unstructured downloads folders dynamically
+target_dir="${1:-.}"
+
+cd "$target_dir" || exit 1
+
+for file in *; do
+    if [ -f "$file" ]; then
+        ext="${file##*.}"
+        case "$ext" in
+            jpg|png|gif)
+                mkdir -p images
+                mv "$file" images/
+                ;;
+            pdf|doc|docx|txt)
+                mkdir -p documents
+                mv "$file" documents/
+                ;;
+            sh|py|js)
+                mkdir -p scripts
+                mv "$file" scripts/
+                ;;
+            *)
+                mkdir -p miscellaneous
+                mv "$file" miscellaneous/
+                ;;
+        esac
+    fi
+done
+echo "Target folder organization complete."</code></pre>
+                </div>
+            </section>
+
+            <section id="proj-backup" class="content-section">
+                <h1>Capstone Project 2: Robust Backup Utility</h1>
+                <p>This utility archives target directories, compresses them into timestamped tarball structures, and saves the backup to a secure storage path.</p>
+                
+                <div class="code-container">
+                    <div class="code-header"><span>backup.sh</span><button class="btn-copy">Copy</button></div>
+                    <pre><code>#!/bin/bash
+SOURCE_DIR="/home/developer/workspace/src"
+BACKUP_DIR="/home/developer/backups"
+TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
+BACKUP_NAME="backup_${TIMESTAMP}.tar.gz"
+
+if [ ! -d "$SOURCE_DIR" ]; then
+    echo "Error: Source workspace path target missing configuration." >&2
+    exit 1
+fi
+
+mkdir -p "$BACKUP_DIR"
+
+tar -czf "${BACKUP_DIR}/${BACKUP_NAME}" "$SOURCE_DIR" 2>/dev/null
+
+if [ $? -eq 0 ]; then
+    echo "Backup completed successfully: ${BACKUP_DIR}/${BACKUP_NAME}"
+else
+    echo "Backup routine failed." >&2
+    exit 1
+fi</code></pre>
+                </div>
+            </section>
+
+            <section id="proj-sysinfo" class="content-section">
+                <h1>Capstone Project 3: System Info Extractor</h1>
+                <p>Gathers performance metrics like memory, disk usage, and host details, formatting them into a clean analytics report.</p>
+                
+                <div class="code-container">
+                    <div class="code-header"><span>sys_info.sh</span><button class="btn-copy">Copy</button></div>
+                    <pre><code>#!/bin/bash
+REPORT_FILE="./system_report.txt"
+
+{
+    echo "=========================================="
+    echo "       AUTOMATED HEALTH METRICS REPORT     "
+    echo "       Generated: $(date)                  "
+    echo "=========================================="
+    echo ""
+    echo "Host Metrics Information:"
+    echo "------------------------"
+    echo "Hostname: $(hostname)"
+    echo "Uptime:   $(uptime -p)"
+    echo ""
+    echo "Storage Consumption Layout:"
+    echo "------------------------"
+    df -h / | awk 'NR==2 {print "Total/Used Available Space: " $3 "/" $2 " (" $5 " consumed)"}'
+    echo ""
+    echo "Memory Allocation Tracking:"
+    echo "------------------------"
+    free -h | awk '/^Mem:/ {print "Used RAM: " $3 " out of total: " $2}'
+    echo "=========================================="
+} > "$REPORT_FILE"
+
+echo "System health summary file generated at $REPORT_FILE"</code></pre>
+                </div>
+            </section>
+
+            <section id="proj-log" class="content-section">
+                <h1>Capstone Project 4: Production Log Analyzer</h1>
+                <p>Scans server log inputs to count distinct error trends, tracking system stability metrics automatically.</p>
+                
+                <div class="code-container">
+                    <div class="code-header"><span>log_analyzer.sh</span><button class="btn-copy">Copy</button></div>
+                    <pre><code>#!/bin/bash
+LOG_FILE=$1
+
+if [ -z "$LOG_FILE" ] || [ ! -f "$LOG_FILE" ]; then
+    echo "Usage: $0 [target_log_file_path]"
+    exit 1
+fi
+
+echo "--- LOG ANALYSIS METRICS SUMMARY ---"
+total_lines=$(wc -l < "$LOG_FILE")
+echo "Total log entry rows processed: $total_lines"
+
+echo "Error occurrences tracked (grouped by frequency):"
+grep -E "ERROR|CRITICAL|FAIL" "$LOG_FILE" | awk '{print $3 " " $4}' | sort | uniq -c | sort -rn | head -n 5
+
+echo "------------------------------------"</code></pre>
+                </div>
+            </section>
+
+            <section id="proj-renamer" class="content-section">
+                <h1>Capstone Project 5: Batch File Renamer</h1>
+                <p>Safely renames bulk file targets by prepending structured date prefixes or custom text tags to them.</p>
+                
+                <div class="code-container">
+                    <div class="code-header"><span>batch_renamer.sh</span><button class="btn-copy">Copy</button></div>
+                    <pre><code>#!/bin/bash
+directory=$1
+prefix=$2
+
+if [ -z "$directory" ] || [ -z "$prefix" ]; then
+    echo "Usage: $0 [directory_target] [text_prefix_to_append]"
+    exit 1
+fi
+
+cd "$directory" || exit 1
+
+count=0
+for file in *.txt; do
+    if [ -f "$file" ]; then
+        mv "$file" "${prefix}_${file}"
+        count=$((count + 1))
+    fi
+done
+
+echo "Successfully updated and prepended prefixes across $count text file targets."</code></pre>
+                </div>
+            </section>
+
+            <div class="completion-checkbox-wrapper">
+                <input type="checkbox" id="chkCompleteSection" class="chk-complete">
+                <label hospitals="chkCompleteSection" class="lbl-complete" id="lblCompleteText">Mark this complete to update course progress tracker</label>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Interactive Navigation State Engine
+        document.addEventListener('DOMContentLoaded', () => {
+            const navItems = document.querySelectorAll('.nav-item');
+            const sections = document.querySelectorAll('.content-section');
+            const chkComplete = document.getElementById('chkCompleteSection');
+            const searchBar = document.getElementById('searchBar');
+            const progressBar = document.getElementById('progressBar');
+            const progressPercent = document.getElementById('progressPercent');
+            const menuToggle = document.getElementById('menuToggle');
+            const sidebar = document.getElementById('sidebar');
+
+            // Course state tracked persistently via localStorage
+            let completionState = JSON.parse(localStorage.getItem('bash_course_progress')) || {};
+
+            function initTracking() {
+                navItems.forEach(item => {
+                    const target = item.getAttribute('data-target');
+                    if (completionState[target]) {
+                        item.classList.add('completed');
+                    }
+                });
+                updateProgressUI();
+            }
+
+            function updateProgressUI() {
+                const total = navItems.length;
+                const completedCount = Object.values(completionState).filter(Boolean).length;
+                const pct = Math.round((completedCount / total) * 100);
+                progressBar.style.width = `${pct}%`;
+                progressPercent.textContent = `${pct}%`;
+            }
+
+            function syncActiveSectionCheckbox(targetId) {
+                chkComplete.checked = !!completionState[targetId];
+            }
+
+            // Click Navigation Routing Engine
+            navItems.forEach(item => {
+                item.querySelector('a').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const targetId = item.getAttribute('data-target');
+                    
+                    // Update layout visibility
+                    sections.forEach(s => s.classList.remove('active'));
+                    navItems.forEach(n => n.classList.remove('active'));
+
+                    document.getElementById(targetId).classList.add('active');
+                    item.classList.add('active');
+
+                    syncActiveSectionCheckbox(targetId);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    
+                    // Close sidebar on mobile drawer views
+                    if (window.innerWidth <= 992) {
+                        sidebar.classList.remove('open');
+                    }
+                });
+            });
+
+            // Section Completion Event Handler
+            chkComplete.addEventListener('change', () => {
+                const activeItem = document.querySelector('.nav-item.active');
+                if (activeItem) {
+                    const targetId = activeItem.getAttribute('data-target');
+                    completionState[targetId] = chkComplete.checked;
+                    
+                    if (chkComplete.checked) {
+                        activeItem.classList.add('completed');
+                    } else {
+                        activeItem.classList.remove('completed');
+                    }
+                    
+                    localStorage.setItem('bash_course_progress', JSON.stringify(completionState));
+                    updateProgressUI();
+                }
+            });
+
+            // Universal Copy to Clipboard Service Engine
+            document.querySelectorAll('.btn-copy').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const codeBlock = btn.closest('.code-container').querySelector('code, pre');
+                    navigator.clipboard.writeText(codeBlock.textContent.trim()).then(() => {
+                        const originalText = btn.textContent;
+                        btn.textContent = 'Copied!';
+                        btn.style.color = 'var(--success)';
+                        setTimeout(() => {
+                            btn.textContent = originalText;
+                            btn.style.color = 'var(--text-muted)';
+                        }, 2000);
+                    });
+                });
+            });
+
+            // Live Search Query Processing Engine
+            searchBar.addEventListener('input', (e) => {
+                const query = e.target.value.toLowerCase().trim();
+                
+                navItems.forEach(item => {
+                    const txt = item.textContent.toLowerCase();
+                    if (txt.includes(query)) {
+                        item.style.display = 'block';
+                        item.closest('.nav-section').style.display = 'block';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+
+                // Clean up empty section headers conditionally during searches
+                document.querySelectorAll('.nav-section').forEach(sec => {
+                    const visibleItems = sec.querySelectorAll('.nav-item[style="display: block;"]');
+                    if (visibleItems.length === 0 && query !== '') {
+                        sec.style.display = 'none';
+                    } else {
+                        sec.style.display = 'block';
+                    }
+                });
+            });
+
+            // Mobile Navigation Toggle
+            menuToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('open');
+            });
+
+            // Global init call logic loops
+            initTracking();
+            syncActiveSectionCheckbox('intro');
+        });
+    </script>
+</body>
+</html>
